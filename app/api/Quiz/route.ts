@@ -18,7 +18,7 @@ export const POST = async (req: any, res: any) => {
       console.log("halo")
       const query = { _id: idQuizu };
       const searchResults = await collection.find(query).toArray();
-      mongoClient.close();
+      //mongoClient.close();
 
       return NextResponse.json({
         status: "success",

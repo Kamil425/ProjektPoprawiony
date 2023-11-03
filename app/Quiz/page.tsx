@@ -1,9 +1,10 @@
-"use client"
+'use client'
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import LINK from 'next/link';
+
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -44,9 +45,9 @@ export default function Home() {
 
   const maxNumberOfPoints = () => {
     let max = 0;
-    quiz.forEach((singleQuiz: any, quizIndex: number) => {
-      singleQuiz.Pytania.forEach((pytanie: any, questionIndex: number) => {
-        pytanie.Odpowiedzi.forEach((odpowiedz: any, answerIndex: number) => {
+    quiz.forEach((singleQuiz: any) => {
+      singleQuiz.Pytania.forEach((pytanie: any) => {
+        pytanie.Odpowiedzi.forEach((odpowiedz: any) => {
           if (odpowiedz.Poprawna) {
             max++;
           }
@@ -86,37 +87,68 @@ export default function Home() {
     );
   } else if (!quiz) {
     return <p>Error: Couldn't fetch quiz data.</p>;
-  } 
-  else if(showScoreboard===true){
-    return(
-  <div className='h-full w-full flex flex-col'>
-    <div className='h-1/6 w-full flex justify-center'>
-      <Navbar />
-    </div>
-    <div className='h-4/6 w-full flex justify-center items-center '>
-      <div className='h-5/6 w-1/3 flex justify-center flex-col items-center border-b-three bg-three rounded-full text-5xl text-white '>
-      
-      <p className=''>Wynik quizu to</p>
-      <p className='pt-10 text-8xl'> {score} / {maxNumberOfPoints()}</p>
-      </div>
-    </div>
-    <div className='h-1/6 w-full flex flex-col justify-center items-center'>
-      <LINK href="./SearchQuiz" className='h-1/2 w-1/6 bg-three flex flex-col justify-center items-center text-white rounded-md'>Complete</LINK>
-    </div>
-  </div>
-    
-    
-    );
-    }
-  else {
+  } else if (showScoreboard === true) {
     return (
       <div className='h-full w-full flex flex-col'>
-        <div className='h-1/6 w-full flex justify-center'><Navbar /></div>
+        <div className='h-1/6 w-full flex justify-center'>
+          <Navbar />
+        </div>
+        <div className='h-4/6 w-full flex justify-center items-center '>
+          <div className='h-4/6 w-1/3 flex justify-center flex-col items-center border-b-three bg-three rounded-full text-5xl text-white '>
+            <p >Wynik quizu to</p>
+            <p className='pt-10 text-8xl'>
+              {score} / {maxNumberOfPoints()}
+            </p>
+          </div>
+        </div>
+        <div className='h-1/6 w-full flex flex-col justify-center items-center'>
+          <LINK href="./SearchQuiz" className='h-1/2 w-1/6 bg-three flex flex-col justify-center items-center text-white rounded-md'>
+            Complete
+          </LINK>
+        </div>
+        <div className='h-2/6 w-full flex flex-col items-center'>
+          {quiz.map((singleQuiz: any, quizIndex: number) => (
+            <div key={singleQuiz._id} className='w-full p-4'>
+              <h1 className='font-bold text-3xl'>{singleQuiz.Nazwa_Quizu}</h1>
+              {singleQuiz.Pytania.map((pytanie: any, questionIndex: number) => (
+                <div key={questionIndex} className='w-full p-4'>
+                  <h1 className='text-2xl font-bold'>{pytanie.Pytanie}</h1>
+                  <ul>
+                    {pytanie.Odpowiedzi.map((odpowiedz: any, answerIndex: number) => (
+                      <li
+                        key={answerIndex}
+                        className={`flex items-center ${
+                          userAnswers[quizIndex] &&
+                          userAnswers[quizIndex][questionIndex] === odpowiedz.Odpowiedz
+                            ? odpowiedz.Poprawna
+                              ? 'bg-green text-white border-b-three'
+                              : ''
+                            : ''
+                        }`}
+                      >
+                       
+                        {odpowiedz.Odpowiedz}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  } else {
+    return (
+      <div className='h-full w-full flex flex-col'>
+        <div className='h-1/6 w-full flex justify-center'>
+          <Navbar />
+        </div>
         <div className='h-5/6 w-full flex flex-col items-center justify-center p-4'>
           {quiz.map((singleQuiz: any, quizIndex: number) => (
             <div key={singleQuiz._id} className='h-full w-full flex flex-col p-4'>
               <div className='h-1/6 w-full border-three border-4 flex justify-center items-center'>
-              <h1 className='font-bold text-3xl'>{singleQuiz.Nazwa_Quizu}</h1>
+                <h1 className='font-bold text-3xl'>{singleQuiz.Nazwa_Quizu}</h1>
               </div>
               <form onSubmit={(e) => { e.preventDefault(); compareAnswers(); }}>
                 {singleQuiz.Pytania.map((pytanie: any, questionIndex: number) => (
@@ -155,7 +187,6 @@ export default function Home() {
             </div>
           ))}
         </div>
-        
       </div>
     );
   }
