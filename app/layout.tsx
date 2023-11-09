@@ -20,8 +20,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
+<<<<<<< Updated upstream
+=======
+    
+>>>>>>> Stashed changes
     <html lang="en" className='h-full w-full'>
+      <SessionProvider>
       <body className={poppins.className} >{children}</body>
+      </SessionProvider>
     </html>
   )
 }

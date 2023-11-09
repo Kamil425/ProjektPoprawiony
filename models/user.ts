@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    quizResults: {
+        type: Array,
+        required: false,
+    },
 
 }, {timestamps: true});
 

@@ -13,6 +13,11 @@ const config: Config = {
       'three': '#FCC822',
       'four': '#E0E0E0',
       'white': '#FFFFFF',
+<<<<<<< Updated upstream
+=======
+      'green': '#33cc33',
+      'red':'#B30000'
+>>>>>>> Stashed changes
     },
     extend: {
       backgroundImage: {
