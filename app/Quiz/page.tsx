@@ -7,6 +7,7 @@ import LINK from 'next/link';
 import { getSession } from 'next-auth/react';
 import { get } from 'http';
 
+
 export default function Home() {
   const searchParams = useSearchParams();
   const quizId = searchParams.get('id');
@@ -87,12 +88,17 @@ export default function Home() {
     return max;
   };
 
+
   const compareAnswers = async () => {
     let totalScore = 0;
     let timeFinish = timeString;
     let maxPoint = maxNumberOfPoints();
     const session = await getSession();
     const userId = session?.user?.email;
+
+  const compareAnswers = () => {
+    let totalScore = 0;
+
   
     quiz.forEach((singleQuiz: any, quizIndex: number) => {
       singleQuiz.Pytania.forEach((pytanie: any, questionIndex: number) => {
@@ -112,6 +118,7 @@ export default function Home() {
     setScore(totalScore);
     setShowScoreboard(true);
     setQuizFinished(true);
+
      //Maksymalny czas na test
     let maxTime;
     try {
@@ -166,6 +173,9 @@ export default function Home() {
       console.error('Network error:', error);
     }
   };  
+
+  };
+
   
   const timeString = timeLeft
   ? `${Math.floor(timeLeft / 60)} min ${timeLeft % 60} sek`
