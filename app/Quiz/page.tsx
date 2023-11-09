@@ -4,6 +4,8 @@ import Navbar from '../components/Navbar';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import LINK from 'next/link';
+import { getSession } from 'next-auth/react';
+import { get } from 'http';
 
 
 export default function Home() {
@@ -86,10 +88,6 @@ export default function Home() {
     return max;
   };
 
-<<<<<<< Updated upstream
-  const compareAnswers = () => {
-    let totalScore = 0;
-=======
 
   const compareAnswers = async () => {
     let totalScore = 0;
@@ -101,7 +99,6 @@ export default function Home() {
   const compareAnswers = () => {
     let totalScore = 0;
 
->>>>>>> Stashed changes
   
     quiz.forEach((singleQuiz: any, quizIndex: number) => {
       singleQuiz.Pytania.forEach((pytanie: any, questionIndex: number) => {
@@ -121,9 +118,6 @@ export default function Home() {
     setScore(totalScore);
     setShowScoreboard(true);
     setQuizFinished(true);
-<<<<<<< Updated upstream
-  };
-=======
 
      //Maksymalny czas na test
     let maxTime;
@@ -182,12 +176,10 @@ export default function Home() {
 
   };
 
->>>>>>> Stashed changes
   
   const timeString = timeLeft
   ? `${Math.floor(timeLeft / 60)} min ${timeLeft % 60} sek`
   : '0 min 0 sek';
-
 
   if (loading) {
     return (

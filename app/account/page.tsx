@@ -6,9 +6,8 @@ import HandsLeft from '/public/HandsLeft.svg';
 import Navbar from '../components/Navbar';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+
 import { SessionProvider } from 'next-auth/react';
-import { get } from "http";
-import { useSearchParams } from 'next/navigation';
 
 type QuizHistory = {
   quizName: string;
@@ -104,10 +103,10 @@ const Welcome = () => {
 };
 
   
-export default function AccountPage() {
+export default function NavbarPage() {
   return (
     <SessionProvider>
-      <Welcome />
+      <Navbar />
     </SessionProvider>
   );
 }

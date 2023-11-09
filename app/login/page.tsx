@@ -38,7 +38,7 @@ const Login = () => {
         }
         else{const form = e.target;
           form.reset();
-          router.push("/about");}
+          router.push("/account");}
   
       } catch (error) {
         console.log(error);
