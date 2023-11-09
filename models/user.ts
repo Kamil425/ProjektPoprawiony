@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    quizResults: {
+        type: Array,
+        required: false,
+    },
     OstatniaAktywnosc:{
         type:Date,
         required:true,
@@ -21,6 +25,7 @@ const userSchema = new mongoose.Schema({
         type: Number,
     },
        
+
 
 }, {timestamps: true});
 

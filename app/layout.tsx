@@ -23,8 +23,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
+
+    
+
     <html lang="en" className='h-full w-full'>
+
+      <SessionProvider>
+      <body className={poppins.className} >{children}</body>
+      </SessionProvider>
+
       <body className={poppins.className}>{children}</body>
+
     </html>
   )
 }

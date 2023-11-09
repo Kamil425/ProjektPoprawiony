@@ -4,6 +4,9 @@ import Navbar from '../components/Navbar';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import LINK from 'next/link';
+import { getSession } from 'next-auth/react';
+import { get } from 'http';
+
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -85,8 +88,17 @@ export default function Home() {
     return max;
   };
 
+
+  const compareAnswers = async () => {
+    let totalScore = 0;
+    let timeFinish = timeString;
+    let maxPoint = maxNumberOfPoints();
+    const session = await getSession();
+    const userId = session?.user?.email;
+
   const compareAnswers = () => {
     let totalScore = 0;
+
   
     quiz.forEach((singleQuiz: any, quizIndex: number) => {
       singleQuiz.Pytania.forEach((pytanie: any, questionIndex: number) => {
@@ -106,12 +118,68 @@ export default function Home() {
     setScore(totalScore);
     setShowScoreboard(true);
     setQuizFinished(true);
+
+     //Maksymalny czas na test
+    let maxTime;
+    try {
+      const res = await fetch('/api/Quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quizId }),
+      });
+  
+      if (res.ok) {
+        const data = await res.json();
+        const difficulty = data.data[0].Trudność;
+        if (difficulty === 'Łatwy') {
+          maxTime = 120 * data.data[0].Pytania.length;
+        } else if (difficulty === 'Średni') {
+          maxTime = 60 * data.data[0].Pytania.length;
+        } else if (difficulty === 'Trudny') {
+          maxTime = 30 * data.data[0].Pytania.length;
+        }
+    } else {
+      console.error('Error fetching quiz details');
+    }
+  } catch (error) {
+    console.error('Network error:', error);
+  }
+
+    try {
+      const res = await fetch('/api/QuizResult', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          quizId,
+          userAnswers,
+          scoreUser: totalScore,
+          scoreMax: maxPoint,
+          timeFinish: timeFinish,
+          timeMax: maxTime,
+        }),
+      });
+  
+      if (res.ok) {
+        // Handle successful response from the server
+      } else {
+        console.error('Error saving quiz results to the server');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+    }
+  };  
+
   };
+
   
   const timeString = timeLeft
   ? `${Math.floor(timeLeft / 60)} min ${timeLeft % 60} sek`
   : '0 min 0 sek';
-
 
   if (loading) {
     return (
