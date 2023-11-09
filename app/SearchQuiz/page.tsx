@@ -1,13 +1,13 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-
+import { useRouter } from 'next/navigation';
 export default function SearchQuiz() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [noResults, setNoResults] = useState(false); // Dodajemy stan noResults
-
+  
   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value.toLowerCase());
     setLoading(true);
@@ -50,7 +50,19 @@ export default function SearchQuiz() {
       setLoading(false);
     }
   }
-
+  const router = useRouter();
+  const PassQuiz = async(e:any) => {
+      const quizId = e.currentTarget.getAttribute('data-value');
+  
+      if (!quizId) {
+        console.error('Brak quizId');
+        return;
+      }
+      console.log(quizId)
+      // Redirect to the 'Quiz' page and pass the quizId as a query parameter
+      router.push(`/Quiz?id=${quizId}`);
+    }
+  
   function formatDate(dateString: string) {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, '0');
@@ -84,7 +96,7 @@ export default function SearchQuiz() {
       <h2>Wyniki wyszukiwania:</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
         {searchResults.map((quiz: any) => (
-          <div key={quiz._id} className="p-2 border-2 rounded-md">
+          <div key={quiz._id} className="p-2 border-2 rounded-md" data-value={quiz._id} onClick={PassQuiz}>
             <p><b>Nazwa Quizu:</b> {quiz.Nazwa_Quizu}</p>
             <p><b>Kategoria:</b> {quiz.Kategoria}</p>
             <p><b>Trudność:</b> {quiz.Trudność}</p>

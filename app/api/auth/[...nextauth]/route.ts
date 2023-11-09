@@ -3,31 +3,48 @@ import User from "@/models/user";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { NextAuthOptions } from "next-auth";
 
-export const authOptions:any = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
       credentials: {},
 
-      async authorize(credentials:any) {
+      async authorize(credentials: any) {
         const { email, password } = credentials;
 
         try {
           await connectMongoDB();
-          const user = await User.findOne({ email });
+          const currentDate = new Date();
+          const hashedPassword = await bcrypt.hash(password, 10);
+        
 
-          if (!user) {
-            return null;
-          }
+         
+          let user = await User.findOneAndUpdate(
+              { email },
+              {
+                $set: {
+                  email,
+                  password: hashedPassword,
+                  OstatniaAktywnosc: currentDate,
+                  powiadomieniaWyslane: 0,
+                }
+              },
+              { upsert: false }
+            );
+          
 
           const passwordsMatch = await bcrypt.compare(password, user.password);
 
           if (!passwordsMatch) {
-            //console.log("Wrong credentials");
-            alert("Wrong Credentials");
-            return ;
+            alert("Złe dane logowania");
+            return;
           }
+
+          user.OstatniaAktywnosc = currentDate;
+          await user.save()
+          .then(console.log(user))
 
           return user;
         } catch (error) {

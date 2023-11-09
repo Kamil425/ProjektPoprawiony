@@ -24,11 +24,8 @@ const mongoClient = new MongoClient(process.env.MONGODB_URI as string, {
             Kategoria: formData.KategoriaQuiz,
             Trudność: formData.TrudnoscQuiz,
             Typ: formData.TypQuiz,
-            Utworzony: new Date()
-        }
-        console.log('halo')
-        const Pytania = {
-           Pytania: formData.Questions.map((question:any) => {
+            Utworzony: new Date(),
+            Pytania: formData.Questions.map((question:any) => {
                 return {
                     Pytanie: question.question,
                     Odpowiedzi: question.answers.map((answer:any) => {
@@ -39,15 +36,13 @@ const mongoClient = new MongoClient(process.env.MONGODB_URI as string, {
                     }),
                 }
                 
-            },
-            ),
-            NazwaQuizu: quiz.Nazwa_Quizu
+            })
         }
+        console.log('halo')
+        
         
         const statusQuiz = await collection.insertOne(quiz)
         console.log(statusQuiz.acknowledged)
-        const statusAnswer = await AnswerCollection.insertOne(Pytania)
-        console.log(statusAnswer.insertedId)
        
         mongoClient.close();
 
