@@ -13,10 +13,9 @@ const poppins = Poppins({
 });
 
 // Run the background task
-cron.schedule("*/10 * * * * *", async () => {
+cron.schedule("0 * * * *", async () => {
   await checkInactiveUsersAndSendNotifications();
 });
-
 
 export default function RootLayout({
   children,
@@ -24,10 +23,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
+    <html lang="en" className='h-full w-full'>
+      <body className={poppins.className}>{children}</body>
+    </html>
+  )
+}
 
-      <html lang="en" className='h-full w-full'>
-        <body className={poppins.className} >{children}</body>
-      </html>
-   
+// Wrap the entire application with SessionProvider
+export function App({ Component, pageProps }: { Component: React.ComponentType, pageProps: any }) {
+  return (
+    <SessionProvider session={pageProps.session}>
+      <RootLayout>
+        <Component {...pageProps} />
+      </RootLayout>
+    </SessionProvider>
   )
 }
