@@ -2,6 +2,11 @@
 import Image from 'next/image'
 import Logo from 'public/Logo.webp'
 import Link from 'next/link';
+<<<<<<< Updated upstream
+=======
+import { useSession } from "next-auth/react";
+import { SessionProvider } from "next-auth/react";
+>>>>>>> Stashed changes
 
 const Navbar = () => {
     const StartPage = ()=>{
@@ -23,7 +28,20 @@ const Navbar = () => {
                 <hr className="h-2 w-full bg-primary border-none"></hr>
             </div>
         </div>
+<<<<<<< Updated upstream
      );
 }
  
 export default Navbar;
+=======
+      );
+    };
+    
+    export default function NavbarPage() {
+      return (
+        <SessionProvider>
+          <Navbar />
+        </SessionProvider>
+      );
+    }
+>>>>>>> Stashed changes
