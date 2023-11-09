@@ -13,6 +13,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    OstatniaAktywnosc:{
+        type:Date,
+        required:true,
+    },
+    powiadomieniaWyslane:{
+        type: Number,
+    },
+       
 
 }, {timestamps: true});
 
