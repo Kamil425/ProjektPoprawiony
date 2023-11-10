@@ -49,6 +49,7 @@ export const POST = async (req: any, res: any) => {
         quizDate: new Date(),
       };
 
+<<<<<<< Updated upstream
       // Check the number of entries for the user
       if (!user.quizResults) {
         user.quizResults = [];
@@ -72,6 +73,28 @@ export const POST = async (req: any, res: any) => {
 
       console.log("Quiz results saved to the database.");
 
+=======
+      if (!user.quizResults) {
+        user.quizResults = [];
+      }
+      
+      const maxUserEntries = 10; // Maximum allowed entries per user
+      
+      // Add the new quiz result to the user's quizResults array
+      await collection.updateOne(
+        { _id: user._id },
+        {
+          $push: {
+            quizResults: {
+              $each: [quizResults],
+              $slice: -maxUserEntries // Keep only the last 10 elements
+            }
+          }
+        }
+      );
+      
+      console.log("Quiz results saved to the database.");
+>>>>>>> Stashed changes
       return NextResponse.json({
         status: "success",
         message: "Quiz results saved to the database",
