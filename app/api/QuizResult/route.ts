@@ -7,8 +7,6 @@ const mongoClient = new MongoClient(process.env.MONGODB_URI as string, {
   useUnifiedTopology: true,
 } as MongoClientOptions);
 
-// ...
-
 export const POST = async (req: any, res: any) => {
   if (req.method === 'POST') {
     try {
@@ -49,31 +47,6 @@ export const POST = async (req: any, res: any) => {
         quizDate: new Date(),
       };
 
-<<<<<<< Updated upstream
-      // Check the number of entries for the user
-      if (!user.quizResults) {
-        user.quizResults = [];
-      }
-
-      const maxUserEntries = 10; // Maximum allowed entries per user
-
-      if (user.quizResults.length >= maxUserEntries) {
-        // Sort the entries by date in descending order
-        user.quizResults.sort((a:any, b:any) => b.quizDate - a.quizDate);
-
-        // Remove the excess entries
-        user.quizResults.splice(maxUserEntries - 1);
-      }
-
-      // Add the new quiz result to the user's quizResults array
-      user.quizResults.push(quizResults);
-
-      // Update the user document in the 'users' collection
-      await collection.updateOne({ _id: user._id }, { $set: { quizResults: user.quizResults } });
-
-      console.log("Quiz results saved to the database.");
-
-=======
       if (!user.quizResults) {
         user.quizResults = [];
       }
@@ -94,7 +67,7 @@ export const POST = async (req: any, res: any) => {
       );
       
       console.log("Quiz results saved to the database.");
->>>>>>> Stashed changes
+
       return NextResponse.json({
         status: "success",
         message: "Quiz results saved to the database",

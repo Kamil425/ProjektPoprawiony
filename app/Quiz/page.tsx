@@ -6,10 +6,6 @@ import { useState } from 'react';
 import LINK from 'next/link';
 import { getSession } from 'next-auth/react';
 import { get } from 'http';
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -91,26 +87,12 @@ export default function Home() {
     return max;
   };
 
-<<<<<<< Updated upstream
-
   const compareAnswers = async () => {
     let totalScore = 0;
     let timeFinish = timeString;
     let maxPoint = maxNumberOfPoints();
     const session = await getSession();
     const userId = session?.user?.email;
-
-  const compareAnswers = () => {
-    let totalScore = 0;
-
-=======
-  const compareAnswers = async () => {
-    let totalScore = 0;
-    let timeFinish = timeString;
-    let maxPoint = maxNumberOfPoints();
-    const session = await getSession();
-    const userId = session?.user?.email;
->>>>>>> Stashed changes
   
     quiz.forEach((singleQuiz: any, quizIndex: number) => {
       singleQuiz.Pytania.forEach((pytanie: any, questionIndex: number) => {
@@ -130,10 +112,6 @@ export default function Home() {
     setScore(totalScore);
     setShowScoreboard(true);
     setQuizFinished(true);
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
      //Maksymalny czas na test
     let maxTime;
     try {
@@ -188,16 +166,10 @@ export default function Home() {
       console.error('Network error:', error);
     }
   };  
-<<<<<<< Updated upstream
-
-  };
-
-=======
->>>>>>> Stashed changes
   
   const timeString = timeLeft
   ? `${Math.floor(timeLeft / 60)}:${timeLeft % 60} min`
-  : '0 min 0 sek';
+  : 'Czas minął';
 
   if (loading) {
     return (

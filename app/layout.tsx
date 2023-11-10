@@ -1,10 +1,6 @@
 import './globals.css'
 import { Poppins } from 'next/font/google'
-<<<<<<< Updated upstream
-import { SessionProvider } from 'next-auth/react'
-=======
 import { SessionProvider, useSession } from 'next-auth/react'
->>>>>>> Stashed changes
 import { checkInactiveUsersAndSendNotifications } from "./NotificationService/page";
 import mongoose from "mongoose";
 import cron from "node-cron";
@@ -20,45 +16,15 @@ const poppins = Poppins({
 cron.schedule("0 * * * *", async () => {
   await checkInactiveUsersAndSendNotifications();
 });
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-<<<<<<< Updated upstream
-
-    
-
-    <html lang="en" className='h-full w-full'>
-
-      <SessionProvider>
-      <body className={poppins.className} >{children}</body>
-      </SessionProvider>
-
-      <body className={poppins.className}>{children}</body>
-
-    </html>
-  )
-}
-
-// Wrap the entire application with SessionProvider
-export function App({ Component, pageProps }: { Component: React.ComponentType, pageProps: any }) {
-  return (
-    <SessionProvider session={pageProps.session}>
-      <RootLayout>
-        <Component {...pageProps} />
-      </RootLayout>
-    </SessionProvider>
-=======
     <html lang="en" className='h-full w-full'>
       <body className={poppins.className}>{children}</body>
     </html>
->>>>>>> Stashed changes
   )
 }
 
