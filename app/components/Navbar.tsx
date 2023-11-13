@@ -2,11 +2,8 @@
 import Image from 'next/image'
 import Logo from 'public/Logo.webp'
 import Link from 'next/link';
-
 import { useSession } from "next-auth/react";
 import { SessionProvider } from "next-auth/react";
-;
-
 
 const Navbar = () => {
     const StartPage = ()=>{
@@ -68,12 +65,10 @@ const Navbar = () => {
             <hr className="h-2 w-full bg-primary border-none"></hr>
           </div>
         </div>
-
-     );
-}
- 
-
+      );
+    };
     
+   
     export default function NavbarPage() {
       return (
         <SessionProvider>
@@ -81,5 +76,3 @@ const Navbar = () => {
         </SessionProvider>
       );
     }
-    
-

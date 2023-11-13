@@ -21,21 +21,10 @@ const userSchema = new mongoose.Schema({
         type:Date,
         required:true,
     },
-<<<<<<< Updated upstream
-=======
-    OstatniaAktywnosc:{
-        type:Date,
-        required:true,
-    },
->>>>>>> Stashed changes
     powiadomieniaWyslane:{
         type: Number,
     },
        
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 
 
 }, {timestamps: true});
