@@ -4,6 +4,18 @@ import Navbar from '../components/Navbar';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { SessionProvider } from 'next-auth/react';
+import { get } from "http";
+import { useSearchParams } from 'next/navigation';
+
+type QuizHistory = {
+  quizName: string;
+  quizResult: number;
+  quizDate: {
+    $date: string;
+  };
+  
+};
+
 
 const Welcome = () => {
   const { data: session, status } = useSession(); // Add session status

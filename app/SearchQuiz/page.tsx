@@ -5,10 +5,80 @@ import { useRouter } from 'next/navigation';
 export default function SearchQuiz() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [searchFilters, setSearchFilters] = useState<any>([]);
   const [loading, setLoading] = useState(false);
-  const [noResults, setNoResults] = useState(false); // Dodajemy stan noResults
+  const [noResults, setNoResults] = useState(false); 
+  const [singleFlag, setSingleFlag] = useState(false);
+  const [multiFlag, setMultiFlag] = useState(false);
+  const [noTimeFlag, setNoTimeFlag] = useState(false);
+  const [trueFlag, setTrueFlag] = useState(false);
+  const [timeFlag, setTimeFlag] = useState(false);
   
-  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const passFilters = async (e: any) => {
+    e.preventDefault();
+    let updatedFilters = [...searchFilters];
+  
+    if (searchFilters.includes(e.currentTarget.getAttribute('data-value'))) {
+      updatedFilters = updatedFilters.filter(
+        (filter) => filter !== e.currentTarget.getAttribute('data-value')
+      );
+      // Remove corresponding flag
+      removeFlag(e.currentTarget.getAttribute('data-value'));
+    } else {
+      updatedFilters.push(e.currentTarget.getAttribute('data-value'));
+      // Add corresponding flag
+      addFlag(e.currentTarget.getAttribute('data-value'));
+    }
+  
+    setSearchFilters(updatedFilters);
+    console.log(updatedFilters);
+  
+  };
+  
+  const addFlag = (filter: string) => {
+    switch (filter) {
+      case 'Quiz pojedynczego wyboru':
+        setSingleFlag(true);
+        break;
+      case 'Quiz wielokrotnego wyboru':
+        setMultiFlag(true);
+        break;
+      case 'Quiz prawda fałsz':
+        setTrueFlag(true);
+        break;
+      case 'Quiz na czas':
+        setTimeFlag(true);
+        break;
+      case 'Quiz bez limitu czasowego':
+        setNoTimeFlag(true);
+        break;
+      default:
+        break;
+    }
+  };
+  
+  const removeFlag = (filter: string) => {
+    switch (filter) {
+      case 'Quiz pojedynczego wyboru':
+        setSingleFlag(false);
+        break;
+      case 'Quiz wielokrotnego wyboru':
+        setMultiFlag(false);
+        break;
+      case 'Quiz prawda fałsz':
+        setTrueFlag(false);
+        break;
+      case 'Quiz na czas':
+        setTimeFlag(false);
+        break;
+      case 'Quiz bez limitu czasowego':
+        setNoTimeFlag(false);
+        break;
+      default:
+        break;
+    }
+  }; 
+  const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement & { value: string }>) => {
     setSearchQuery(event.target.value.toLowerCase());
     setLoading(true);
 
@@ -25,7 +95,7 @@ export default function SearchQuiz() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ searchQuery: event.target.value.toLowerCase() }),
+        body: JSON.stringify({ searchQuery: event.target.value.toLowerCase(), searchFilters: searchFilters }),
       });
 
       if (response.ok) {
@@ -87,6 +157,11 @@ export default function SearchQuiz() {
                 value={searchQuery}
                 onChange={handleSearchChange}
               />
+              <button className={`ml-2 bg-four rounded-xl ${singleFlag ? 'border-2 border-three' :''}`} data-value="Quiz pojedynczego wyboru" onClick={passFilters}>Quiz Pojedynczego Wyboru</button>
+              <button className={`ml-2 bg-four rounded-xl ${multiFlag ? 'border-2 border-three' :''}`} data-value="Quiz wielokrotnego wyboru" onClick={passFilters}>Quiz Wielokrotnego Wyboru</button>
+              <button className={`ml-2 bg-four rounded-xl ${trueFlag ? 'border-2 border-three' :''}`} data-value="Quiz prawda fałsz" onClick={passFilters}>Quiz Prawda Fałsz</button>
+              <button className={`ml-2 bg-four rounded-xl ${timeFlag ? 'border-2 border-three' :''}`} data-value="Quiz na czas" onClick={passFilters}>Quiz Na Czas</button>
+              <button className={`ml-2 bg-four rounded-xl ${noTimeFlag ? 'border-2 border-three' :''}`} data-value="Quiz bez limitu czasowego" onClick={passFilters}>Quiz Bez Limitu Czasowego</button>
             </div>
           </div>
           <div className="w-full flex flex-col ml-2">

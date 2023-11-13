@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useSession } from "next-auth/react";
 import { SessionProvider, signOut } from "next-auth/react";
 import { useRouter } from 'next/navigation';
+
+
 const Navbar = () => {
     const StartPage = ()=>{
         window.location.href = "/";
