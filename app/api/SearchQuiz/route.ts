@@ -27,8 +27,17 @@ export const POST = async (req: any, res: any) => {
       const db = mongoClient.db('Projekt');
       const collection = db.collection('Quizy');
 
-      // Wyszukaj quizy na podstawie zapytania wyszukiwania (Nazwa_Quizu).
-      const query = { Nazwa_Quizu: { $regex: formData.searchQuery, $options: 'i' } };
+      let query: any = { Nazwa_Quizu: { $regex: formData.searchQuery, $options: 'i' } };
+
+      // Apply filters if they exist
+      if (formData.searchFilters && formData.searchFilters.length > 0) {
+        console.log('Filters:', formData.searchFilters)
+        const filters = formData.searchFilters.map((filter: string) => ({
+          Typ: filter,
+        }));
+        query = { $and: [query, { $or: filters }] };
+      }
+
       const searchResults = await collection.find(query).toArray();
 
       // Nie zamykaj połączenia - pozostaw otwarte na potrzeby przyszłych zapytań
