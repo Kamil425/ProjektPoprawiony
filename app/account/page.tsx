@@ -7,20 +7,11 @@ import { SessionProvider } from 'next-auth/react';
 import { get } from "http";
 import { useSearchParams } from 'next/navigation';
 
-type QuizHistory = {
-  quizName: string;
-  quizResult: number;
-  quizDate: {
-    $date: string;
-  };
-  
-};
-
-
 const Welcome = () => {
   const { data: session, status } = useSession(); // Add session status
   const [userQuizzes, setUserQuizzes] = useState<any[]>([]);
   const router = useRouter();
+  const [pendingChallenges, setPendingChallenges] = useState<any[]>([]);
 
   // Fetch quiz details function with userId as a parameter
   const getQuizDetails = async (userMail: string) => {
@@ -55,6 +46,40 @@ const Welcome = () => {
       router.push("/login");
     }
   }, [status, session, router]);
+
+
+  const getPendingChallenges = async (userMail: string) => {
+    try {
+      const url = new URL("http://localhost:3000/api/pending-challenges"); // Modify the API route accordingly
+      const params = { email: userMail };
+      const finalUrl = `${url}?${new URLSearchParams(params)}`;
+      const res = await fetch(finalUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const challengeData = await res.json();
+      console.log(challengeData);
+      setPendingChallenges(challengeData.data); // Update state with fetched data
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.email) {
+      getQuizDetails(session.user.email);
+      getPendingChallenges(session.user.email);
+    } else if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, session, router]);
+
+  const handleStartQuiz = (quizId:any) => {
+    // Perform actions when starting the quiz, e.g., redirect to the quiz page
+    router.push(`/Quiz?id=${quizId}`);
+  };
 
   function formatTime(seconds:any) {
     const minutes = Math.floor(seconds / 60);
@@ -94,9 +119,32 @@ const Welcome = () => {
             )}
           </ul>
           </div>
-          <div className="h-full w-1/3 flex items-center justify-center">
-            <p>Tutaj wyzwania</p>
-          </div>
+          <div className="h-2/3 w-2/3 flex flex-col items-center justify-center overflow-auto p-2">
+          <p>Lista wyzwań:</p>
+          <ul>
+          {pendingChallenges.map((challenge, index) => (
+              <li key={index}>
+                <ul>
+                  <li>
+                    <b>
+                      {challenge.challengerEmail === session.user?.email
+                        ? `Wysłałeś wyzwanie do: ${challenge.challengedUserEmail}`
+                        : `Dostałeś wyzwanie od: ${challenge.challengerEmail}`}
+                    </b>
+                  </li>
+                  <li>
+                    <button
+                      className="text-three border-solid border-2 border-three"
+                      onClick={() => handleStartQuiz(challenge.quizId)}
+                    >
+                      Rozpocznij Quiz
+                    </button>
+                  </li>
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
         </div>
       </div>
     );
