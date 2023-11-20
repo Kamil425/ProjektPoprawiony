@@ -1,7 +1,9 @@
 "use client"
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { getSession } from 'next-auth/react';
+
 export default function SearchQuiz() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -13,7 +15,13 @@ export default function SearchQuiz() {
   const [noTimeFlag, setNoTimeFlag] = useState(false);
   const [trueFlag, setTrueFlag] = useState(false);
   const [timeFlag, setTimeFlag] = useState(false);
+  const [challengedUserEmail, setChallengedUserEmail] = useState('');
+  const [showEmailInput, setShowEmailInput] = useState(false);
   
+  const handleChallengedUserEmailChange = (e: React.ChangeEvent<HTMLInputElement & { value: string }>) => {
+    setChallengedUserEmail(e.target.value);
+  }
+
   const passFilters = async (e: any) => {
     e.preventDefault();
     let updatedFilters = [...searchFilters];
@@ -78,6 +86,45 @@ export default function SearchQuiz() {
         break;
     }
   }; 
+
+  const initiateChallenge = async (e: React.MouseEvent<HTMLButtonElement>, quizId: string) => {
+    e.preventDefault(); // Prevent default form submission behavior
+    setShowEmailInput(true); // Show the email input field
+  
+    // Add logic to send a request to save the challenge details
+    try {
+      if (
+        challengedUserEmail &&
+        challengedUserEmail.includes('@') &&
+        challengedUserEmail.includes('.')
+      ) {
+      const session = await getSession();
+      const userId = session?.user?.email;
+      const response = await fetch('/api/InitiateChallenge', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          quizId,
+          challengerEmail: userId, // The email of the user initiating the challenge
+          challengedUserEmail, // Use the challengedUserEmail from the component state
+        }),
+      });
+  
+      if (response.ok) {
+        console.log('Challenge initiated successfully');
+        // Add any further logic or feedback to the user
+      } else {
+        console.error('Error initiating challenge');
+        // Handle error cases
+      }
+    }
+    } catch (error) {
+      console.error('Network error:', error);
+    }
+  };
+  
   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement & { value: string }>) => {
     setSearchQuery(event.target.value.toLowerCase());
     setLoading(true);
@@ -120,18 +167,6 @@ export default function SearchQuiz() {
       setLoading(false);
     }
   }
-  const router = useRouter();
-  const PassQuiz = async(e:any) => {
-      const quizId = e.currentTarget.getAttribute('data-value');
-  
-      if (!quizId) {
-        console.error('Brak quizId');
-        return;
-      }
-      console.log(quizId)
-      // Redirect to the 'Quiz' page and pass the quizId as a query parameter
-      router.push(`/Quiz?id=${quizId}`);
-    }
   
   function formatDate(dateString: string) {
     const date = new Date(dateString);
@@ -168,23 +203,48 @@ export default function SearchQuiz() {
   {loading && <p>Trwa wyszukiwanie...</p>}
   {searchResults.length > 0 && (
     <div>
-      <h2>Wyniki wyszukiwania:</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-        {searchResults.map((quiz: any) => (
-          <div key={quiz._id} className="p-2 border-2 rounded-md" data-value={quiz._id} onClick={PassQuiz}>
-            <p><b>Nazwa Quizu:</b> {quiz.Nazwa_Quizu}</p>
-            <p><b>Kategoria:</b> {quiz.Kategoria}</p>
-            <p><b>Trudność:</b> {quiz.Trudność}</p>
-            <p><b>Typ:</b> {quiz.Typ}</p>
-            <p><b>Data Utworzenia: </b>{formatDate(quiz.Utworzony)}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-    )}
-    {noResults && !loading && (
-      <p>Brak pasujących quizów.</p>
-    )}
+       <h2>Wyniki wyszukiwania:</h2>
+       <div>
+        
+       {showEmailInput && (
+                     <div>
+                     <p className='text-xl font-bold'>Zaproś gracza:</p>
+                     <input
+                       type="email"
+                       placeholder="Wprowadź e-mail wyzwanego gracza"
+                       value={challengedUserEmail}
+                       onChange={handleChallengedUserEmailChange}
+                     />
+                   </div>
+                  )}
+       </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+                  {searchResults.map((quiz: any) => (
+                  <div key={quiz._id} className="p-2 border-2 rounded-md">
+                  <p><b>Nazwa Quizu:</b> {quiz.Nazwa_Quizu}</p>
+                  <p><b>Kategoria:</b> {quiz.Kategoria}</p>
+                  <p><b>Trudność:</b> {quiz.Trudność}</p>
+                  <p><b>Typ:</b> {quiz.Typ}</p>
+                  <p><b>Data Utworzenia: </b>{formatDate(quiz.Utworzony)}</p>
+                  <div className="flex space-x-4">
+                    <Link href={`/Quiz?id=${quiz._id}`} passHref>
+                    <button className='mt-2 bg-blue-500 text-black rounded-md p-2 block text-center border-2 border-three'>Start Quiz</button>
+                    </Link>
+                  <button
+                    className="mt-2 bg-blue-500 text-black rounded-md p-2 block text-center border-2 border-three"
+                    onClick={(e) => initiateChallenge(e, quiz._id)}
+                  >
+                    Wyzwij na Quiz
+                  </button>
+                    </div>
+                  </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {noResults && !loading && (
+              <p>Brak pasujących quizów.</p>
+            )}
           </div>
         </div>
       </form>
