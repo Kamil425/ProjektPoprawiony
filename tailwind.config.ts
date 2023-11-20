@@ -13,6 +13,7 @@ const config: Config = {
       'three': '#FCC822',
       'four': '#E0E0E0',
       'white': '#FFFFFF',
+      'black': '#000000',
 
 
       'green': '#33cc33',

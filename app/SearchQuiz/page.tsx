@@ -15,9 +15,6 @@ export default function SearchQuiz() {
   const [noTimeFlag, setNoTimeFlag] = useState(false);
   const [trueFlag, setTrueFlag] = useState(false);
   const [timeFlag, setTimeFlag] = useState(false);
-<<<<<<< Updated upstream
-  
-=======
   const [challengedUserEmail, setChallengedUserEmail] = useState('');
   const [showEmailInput, setShowEmailInput] = useState(false);
   
@@ -25,7 +22,6 @@ export default function SearchQuiz() {
     setChallengedUserEmail(e.target.value);
   }
 
->>>>>>> Stashed changes
   const passFilters = async (e: any) => {
     e.preventDefault();
     let updatedFilters = [...searchFilters];
@@ -90,8 +86,6 @@ export default function SearchQuiz() {
         break;
     }
   }; 
-<<<<<<< Updated upstream
-=======
 
   const initiateChallenge = async (e: React.MouseEvent<HTMLButtonElement>, quizId: string) => {
     e.preventDefault(); // Prevent default form submission behavior
@@ -131,7 +125,6 @@ export default function SearchQuiz() {
     }
   };
   
->>>>>>> Stashed changes
   const handleSearchChange = async (event: React.ChangeEvent<HTMLInputElement & { value: string }>) => {
     setSearchQuery(event.target.value.toLowerCase());
     setLoading(true);

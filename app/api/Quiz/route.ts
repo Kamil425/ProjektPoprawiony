@@ -15,11 +15,9 @@ export const POST = async (req: any, res: any) => {
       const idQuizu = new ObjectId(id.quizId);
       const db = mongoClient.db('Projekt');
       const collection = db.collection('Quizy');
-      console.log("halo")
       const query = { _id: idQuizu };
       const searchResults = await collection.find(query).toArray();
-      const trudnosc = searchResults[0].Trudność;
-      console.log("Trudnosc", trudnosc);
+
 
       return NextResponse.json({
         status: "success",

@@ -37,7 +37,6 @@ export const GET = async (req: any, res: any) => {
 
       // Get the user's content based on userId
       const userData = await collection.findOne({ _id: new ObjectId(user._id) });
-      console.log(userData)
       if (!userData) {
         return new NextResponse(
           JSON.stringify({
