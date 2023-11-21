@@ -60,11 +60,11 @@ const Navbar = () => {
                       href="/account"
                       className="mr-6 h-1/2 w-2/4 2xl:text-l xl:text-l l:text-s md:text-s sm:text-s max-sm:text-xs text-three border-solid border-2 border-three relative flex items-center"
                     >
-                      <button className="w-full h-full flex items-center justify-center">
+                      <button className="w-full h-full flex items-center justify-center hover:bg-three hover:text-secondary transition-all duration-500">
                         <span>Witaj {session?.user?.name}</span>
                       </button>
                     </Link>
-                      <button className="h-1/2 w-1/4 2xl:text-l xl:text-l l:text-s md:text-s sm:text-xs max-sm:text-xs text-three border-solid border-2 border-three relative flex items-center justify-center" onClick={handleSignOut}>
+                      <button className="h-1/2 w-1/4 2xl:text-l xl:text-l l:text-s md:text-s sm:text-xs max-sm:text-xs text-three border-solid border-2 border-three relative flex items-center justify-center hover:bg-three hover:text-secondary transition-all duration-500" onClick={handleSignOut}>
                         <span>Wyloguj</span>
                       </button>
                   </>
