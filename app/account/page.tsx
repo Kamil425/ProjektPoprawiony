@@ -93,45 +93,48 @@ const Welcome = () => {
   if (status === 'loading') {
     return <div>Ładowanie...</div>;
   }
-
+  const challengerName = pendingChallenges.map((challenge) => challenge.ChallengerEmail.split('@')[0]);
+  const challengedName = pendingChallenges.map((challenge) => challenge.ChallengedEmail.split('@')[0]);
+  console.log(challengerName, challengedName)
   if (session && session.user) {
     const { user } = session;
     return (
       <div className="h-full w-full flex justify-center flex-row p-5">
         <Navbar />
-        <div className="h-full w-2/3 flex flex-row items-center">
-          <div className="h-2/3 w-full flex flex-col items-center justify-center overflow-auto p-2">
-            <p className="h-1/6 font-bold 2xl:text-3xl xl:text-2xl l:text-xl md:text-xl sm:text-xl max-sm:text-xs">
-              Ostatnio wykonane Quizy:
-            </p>
+        <div className="h-full w-full flex flex-row items-center">
+          <div className="h-2/3 w-2/3 flex flex-col items-center justify-center overflow-auto p-2">
+            <span className="h-1/6 font-bold 2xl:text-2xl xl:text-xl l:text-lg md:text-lg sm:text-lg max-sm:text-xs">
+            <h1>Twoja Historia</h1>
+            </span>
             <ul className="h-2/3">
               {userQuizzes.length === 0 ? (
                 <li>Brak rozwiązanych Quizów</li>
               ) : (
+                
                 userQuizzes.map((quiz, index) => (
-                  <li key={index}>
-                    <ul>
+                  <li key={index} className='border-2 border-solid border-secondary mb-2 rounded-xl bg-four p-2' >
+                    <ul className='border-l-4 border-three rounded-xl p-2'>
                       <li>
-                        <b>Quiz nr: </b>
-                        {index}
+                        <b className='text-secondary'>Quiz nr: </b>
+                        {index+1}
                       </li>
                       <li>
-                        <b>Nazwa:</b> {quiz.quizName}
+                        <b className='text-secondary'>Nazwa:</b> {quiz.quizName}
                       </li>
                       <li>
-                        <b>Poziom trudności: </b>
+                        <b className='text-secondary'>Poziom trudności: </b>
                         {quiz.quizDifficulty}
                       </li>
                       <li>
-                        <b>Wynik: </b>
+                        <b className='text-secondary'>Wynik: </b>
                         {quiz.quizResult} na {quiz.quizPoints} możliwych punktów
                       </li>
                       <li>
-                        <b>Czas zakończenia testu: </b>
-                        {quiz.quizTimeFinish} z {formatTime(quiz.quizTimeMax)} min
+                        <b className='text-secondary'>Czas zakończenia testu: </b>
+                        {quiz.quizTimeFinish} z {formatTime(quiz.quizTimeMax)} 
                       </li>
                       <li>
-                        <b>Data: </b>
+                        <b className='text-secondary' >Data: </b>
                         {new Date(quiz.quizDate).toLocaleString()}
                       </li>
                     </ul>
@@ -140,51 +143,72 @@ const Welcome = () => {
               )}
             </ul>
           </div>
-          <div className="h-2/3 w-2/3 flex flex-col items-center justify-center overflow-auto p-2 ">
-            <p>Lista wyzwań:</p>
+          <div className="h-2/3 w-1/4 flex flex-col items-center justify-center overflow-auto p-2 ">
+          <span className="h-1/6 font-bold 2xl:text-2xl xl:text-xl l:text-lg md:text-lg sm:text-lg max-sm:text-xs">
+            <h1>Lista Wyzwań:</h1>
+          </span>
             <ul>
               {pendingChallenges.map((challenge, index) => (
                 <li key={index} className='mb-2'>
-                  <ul>
+                  
                     {!challenge.Active ? (
                       <>
+                       <li key={index} className='border-2 border-solid border-secondary mb-2 rounded-xl bg-four p-2' >
+                       <ul className='border-l-4 border-three rounded-xl p-2 '>
                         <li>
-                          <b>Nazwa:</b> {challenge.QuizResult.quizName}
+                          <b className='text-secondary'>Nazwa:</b> {challenge.QuizResult.quizName}
                         </li>
                         <li>
-                          <b>Poziom trudności: </b>
+                          <b className='text-secondary' >Poziom trudności: </b>
                           {challenge.QuizResult.quizDifficulty}
                         </li>
+                        <div className='flex mt-2'>
+                        <div className='w-1/2 h-full mr-2'>
+                          <h2 className='font-bold text-secondary'>Twój wynik:</h2>
                         <li>
-                          <b>Wynik: </b>
+                          <b className='text-secondary'>Punkty: </b>
                           {challenge.QuizResult.quizResult} na {challenge.QuizResult.quizPoints} możliwych punktów
                         </li>
                         <li>
-                          <b>Czas zakończenia testu: </b>
+                          <b className='text-secondary'>Czas zakończenia testu: </b>
                           {challenge.QuizResult.quizTimeFinish} z {formatTime(challenge.QuizResult.quizTimeMax)} min
                         </li>
                         <li>
-                          <b>Data: </b>
+                          <b className='text-secondary'>Data: </b>
                           {new Date(challenge.QuizResult.quizDate).toLocaleString()}
-                        </li>
+                        </li></div>
+                        <div className='w-1/2 h-full ml-2'>
+                        <h2 className='font-bold text-secondary'>{challenge.ChallengerEmail === session.user?.email
+                              ? `Wynik ${challengedName[1]}`
+                              : `Wynik ${challengerName[0]}`}</h2>
                         <li>
-                          <b>Wynik drugiego gracza: </b>
+                          <b className='text-secondary'>Punkty: </b>
                           {challenge.OtherUserQuizResult
                             ? `${challenge.OtherUserQuizResult.quizResult} na ${challenge.OtherUserQuizResult.quizPoints} możliwych punktów`
                             : 'Brak'}
                         </li>
                         <li>
-                          <b>Czas zakończenia testu drugiego gracza: </b>
+                          <b className='text-secondary'>Czas zakończenia testu: </b>
                           {challenge.OtherUserQuizResult
-                            ? `${challenge.OtherUserQuizResult.quizTimeFinish} z ${formatTime(challenge.OtherUserQuizResult.quizTimeMax)} min`
+                            ? `${challenge.OtherUserQuizResult.quizTimeFinish} z ${formatTime(challenge.OtherUserQuizResult.quizTimeMax)}`
                             : 'Brak'}
+                        </li>
+                        <li>
+                          <b className='text-secondary'>Data: </b>
+                          {challenge.OtherUserQuizResult
+                            ? `${new Date(challenge.OtherUserQuizResult.quizDate).toLocaleString()}`
+                            : 'Brak'}
+                        </li>
+                        </div>
+                        </div>
+                        </ul>
                         </li>
                         
                       </>
                     ) : (
                       <>
                         <li>
-                          <b>
+                          <b className='text-secondary'>
                             {challenge.ChallengerEmail === session.user?.email
                               ? `Wysłałeś wyzwanie do: ${challenge.ChallengedEmail}`
                               : `Dostałeś wyzwanie od: ${challenge.ChallengerEmail}`}
@@ -205,7 +229,7 @@ const Welcome = () => {
                         </li>
             </>
           )}
-        </ul>
+        
       </li>
     ))}
   </ul>
