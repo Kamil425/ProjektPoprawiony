@@ -1,4 +1,4 @@
-"use client"
+'use client';
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 
@@ -17,7 +17,7 @@ export default function Home() {
   });
   const [loading, setLoading] = useState(false);
 
-  const handleQuestionChange = (event:any) => {
+  const handleQuestionChange = (event: any) => {
     setFormValues({ ...formValues, newQuestion: event.target.value });
   };
 
@@ -34,15 +34,30 @@ export default function Home() {
         ...formValues,
         Questions: [...formValues.Questions, newQuestion],
         newQuestion: '',
-        newAnswers: formValues.TypQuiz === 'Quiz prawda fałsz' ? [{ answer: 'True', isCorrect: true }, { answer: 'False', isCorrect: false }] : [{ answer: '', isCorrect: false }, { answer: '', isCorrect: false }, { answer: '', isCorrect: false }, { answer: '', isCorrect: false }],
+        newAnswers:
+          formValues.TypQuiz === 'Quiz prawda fałsz'
+            ? [{ answer: 'True', isCorrect: true }, { answer: 'False', isCorrect: false }]
+            : [
+                { answer: '', isCorrect: false },
+                { answer: '', isCorrect: false },
+                { answer: '', isCorrect: false },
+                { answer: '', isCorrect: false },
+              ],
       });
     }
   };
 
-  const handleTypQuizChange = (event:any) => {
+  const handleTypQuizChange = (event: any) => {
     const selectedTypQuiz = event.target.value;
     const defaultAnswers =
-      selectedTypQuiz === 'Quiz prawda fałsz' ? [{ answer: 'True', isCorrect: true }, { answer: 'False', isCorrect: false }] : [{ answer: '', isCorrect: false }, { answer: '', isCorrect: false }, { answer: '', isCorrect: false }, { answer: '', isCorrect: false }];
+      selectedTypQuiz === 'Quiz prawda fałsz'
+        ? [{ answer: 'True', isCorrect: true }, { answer: 'False', isCorrect: false }]
+        : [
+            { answer: '', isCorrect: false },
+            { answer: '', isCorrect: false },
+            { answer: '', isCorrect: false },
+            { answer: '', isCorrect: false },
+          ];
 
     setFormValues({
       ...formValues,
@@ -51,18 +66,18 @@ export default function Home() {
     });
   };
 
-  const handleAnswerChange = (event:any, index:any) => {
+  const handleAnswerChange = (event: any, index: any) => {
     const newAnswers = [...formValues.newAnswers];
     newAnswers[index].answer = event.target.value;
     setFormValues({ ...formValues, newAnswers });
   };
 
-  const handleCorrectAnswerChange = (index:any) => {
+  const handleCorrectAnswerChange = (index: any) => {
     if (formValues.TypQuiz === 'Quiz wielokrotnego wyboru') {
       const currentAnswers = formValues.newAnswers;
       const isCurrentlyCorrect = currentAnswers[index].isCorrect;
       const numberOfCorrectAnswers = currentAnswers.filter((a) => a.isCorrect).length;
-  
+
       if (isCurrentlyCorrect || numberOfCorrectAnswers < 3) {
         currentAnswers[index].isCorrect = !isCurrentlyCorrect;
         setFormValues({ ...formValues, newAnswers: [...currentAnswers] });
@@ -77,9 +92,16 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = async (event:any) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
     setLoading(true);
+
+    // Check if at least one question is added
+    if (formValues.Questions.length === 0) {
+      alert('Dodaj co najmniej jedno pytanie przed dodaniem quizu.');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/AddQuiz', {
@@ -107,7 +129,6 @@ export default function Home() {
     <div className="h-full w-full flex justify-center">
       <Navbar />
       <form onSubmit={handleSubmit}>
-        <div className='h-full w-full'>
         <div className="w-full h-full mt-40 flex justify-start">
           <div className="w-full flex flex-col">
             <div className="mb-2 flex flex-row h-1/4">
@@ -142,12 +163,7 @@ export default function Home() {
               <div className="border-solid border-2 w-1/2 mr-2 h-full border-five p-2">
                 <div className="h-full w-full border-l-4 border-solid border-three pl-2 flex flex-col">
                   <label>Typ Quizu:</label>
-                  <select
-                    name="TypQuiz"
-                    value={formValues.TypQuiz}
-                    onChange={handleTypQuizChange}
-                    required
-                  >
+                  <select name="TypQuiz" value={formValues.TypQuiz} onChange={handleTypQuizChange} required>
                     <option value="Flashcard">Flashcard</option>
                     <option value="Quiz pojedynczego wyboru">Quiz pojedynczego wyboru</option>
                     <option value="Quiz wielokrotnego wyboru">Quiz wielokrotnego wyboru</option>
@@ -206,31 +222,31 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className='flex h-1/6 w-full'>
-            <button type="button" onClick={addQuestion} className="h-full w-full mr-2 border-five border-2">
-              Dodaj pytanie
-            </button>
-            <button type="submit" className="h-full w-full border-five border-2" disabled={loading}>
-              {loading ? 'Dodawanie w toku...' : 'Dodaj Quiz'}
-            </button>
+            <div className="flex h-1/6 w-full">
+              <button type="button" onClick={addQuestion} className="h-full w-full mr-2 border-five border-2">
+                Dodaj pytanie
+              </button>
+              {formValues.Questions.length > 0 && (
+                <button type="submit" className="h-full w-full border-five border-2" disabled={loading}>
+                  {loading ? 'Dodawanie w toku...' : 'Dodaj Quiz'}
+                </button>
+              )}
             </div>
-            </div>
-            <div className='flex flex-col w-1/3'>
+          </div>
+          <div className="flex flex-col w-1/3">
             {formValues.Questions.map((question, index) => (
-              <div className='w-full h-1/4 mb-2 ml-2 border-five border-2 p-2' >
-                <div key={index} className=' h-full w-full overflow-y-scroll border-l-4 border-l-three pl-2'>
-                <div >{`Pytanie ${index + 1}: ${question.question}`}</div>
-                <div>Odpowiedzi:</div>
-                <ul>
-                  {question.answers.map((answer, answerIndex) => (
-                    <li key={answerIndex}>{`${answer.answer} (Prawdziwa?: ${answer.isCorrect ? 'Tak' : 'Nie'})`}</li>
-                  ))}
-                </ul>
-              </div>
+              <div className="w-full h-1/4 mb-2 ml-2 border-five border-2 p-2" key={index}>
+                <div className="h-full w-full overflow-y-scroll border-l-4 border-l-three pl-2">
+                  <div>{`Pytanie ${index + 1}: ${question.question}`}</div>
+                  <div>Odpowiedzi:</div>
+                  <ul>
+                    {question.answers.map((answer, answerIndex) => (
+                      <li key={answerIndex}>{`${answer.answer} (Prawdziwa?: ${answer.isCorrect ? 'Tak' : 'Nie'})`}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             ))}
-            
-            </div>
           </div>
         </div>
       </form>
