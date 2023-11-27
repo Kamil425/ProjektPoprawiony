@@ -15,6 +15,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoggedIn, setLoggedIn] = useState(false);
 
   const router = useRouter();
   const handleSignupClick = () => {
@@ -38,7 +39,10 @@ const Login = () => {
         }
         else{const form = e.target;
           form.reset();
-          router.push("/account");}
+          setLoggedIn(true);
+          setTimeout(() => {
+            router.push("/");
+          }, 1000);}
   
       } catch (error) {
         console.log(error);
@@ -49,7 +53,9 @@ const Login = () => {
     <div className="h-full w-full flex flex-row p-5">
       <div className="h-full w-1/2 flex flex-col items-center justify-center">
         <Image src={Logo} alt="Logo" className="w-3/12" onClick={StartPage}/>
-        <div className="p-6">Zaloguj się</div>
+        <div className="p-6">
+          {isLoggedIn ? "Witamy na Serwisie" : "Zaloguj się"}
+        </div>
         <form className="w-1/2 p-5" onSubmit={handleSubmit}>
           <div className="p-5 mb-2 border-2">
             <div className="border-l-three border-l-4 pl-2">

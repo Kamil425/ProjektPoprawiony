@@ -1,11 +1,11 @@
-
 "use client"
 import { useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import LINK from 'next/link';
-
+import { getSession } from 'next-auth/react';
+import { get } from 'http';
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -17,7 +17,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [quizFinished, setQuizFinished] = useState(false);
-  const [showTimer, setShowTimer] = useState(true);
+  const [quizType, setQuizType] = useState<string | null>(null);
+  const [isMultipleChoiceQuiz, setIsMultipleChoiceQuiz] = useState(false);
 
   const getQuizDetails = async () => {
     try {
@@ -34,27 +35,23 @@ export default function Home() {
         setQuiz(data.data);
         setLoading(false);
 
-        const difficulty = data.data[0].Trudność;
-        let time: any;
+        // Set the quiz type in the state
+        setQuizType(data.data[0].Typ);
+        setIsMultipleChoiceQuiz(data.data[0].Typ === 'Quiz wielokrotnego wyboru');
 
-        const quizType = data.data[0].Typ;
-        if (quizType === 'Quiz na czas') {
+        // Calculate time based on difficulty if it's a timed quiz
+        if (data.data[0].Typ !== 'Quiz bez limitu czasowego') {
+          const difficulty = data.data[0].Trudność;
+          let time: any;
           if (difficulty === 'Łatwy') {
-            time = 30 * data.data[0].Pytania.length;
+            time = 120 * data.data[0].Pytania.length;
           } else if (difficulty === 'Średni') {
-            time = 15 * data.data[0].Pytania.length;
+            time = 60 * data.data[0].Pytania.length;
           } else if (difficulty === 'Trudny') {
-            time = 10 * data.data[0].Pytania.length;
+            time = 30 * data.data[0].Pytania.length;
           }
-        } else if (difficulty === 'Łatwy') {
-          time = 120 * data.data[0].Pytania.length;
-        } else if (difficulty === 'Średni') {
-          time = 60 * data.data[0].Pytania.length;
-        } else if (difficulty === 'Trudny') {
-          time = 30 * data.data[0].Pytania.length;
+          setTimeLeft(time);
         }
-
-        setTimeLeft(time);
       } else {
         console.error('Error fetching quiz details');
       }
@@ -63,6 +60,7 @@ export default function Home() {
     }
   };
 
+  // Call getQuizDetails when quizId changes
   useEffect(() => {
     if (quizId) {
       getQuizDetails();
@@ -71,20 +69,19 @@ export default function Home() {
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
-    if (quiz && quiz[0].Typ === 'Quiz bez limitu czasowego') {
-      setTimeLeft(null);
-      setShowTimer(false);
-    } else if (timeLeft !== null && timeLeft > 0 && !quizFinished && quiz && quiz[0].Typ !== 'Quiz bez limitu czasowego') {
+  
+    if (timeLeft !== null && timeLeft > 0 && !quizFinished) {
       timer = setTimeout(() => {
         setTimeLeft((prevTime) => (prevTime ? prevTime - 1 : prevTime));
       }, 1000);
-    } else if (timeLeft === 0 && !quizFinished && quiz && quiz[0].Typ !== 'Quiz bez limitu czasowego') {
+    } else if (timeLeft === 0 && !quizFinished) {
+      // Automatycznie zakończ quiz, jeśli czas minął
       compareAnswers();
     }
-
+  
     return () => clearTimeout(timer);
-  }, [timeLeft, quizFinished, quiz]);
-
+  }, [timeLeft, quizFinished]);
+  
   const maxNumberOfPoints = () => {
     let max = 0;
     quiz.forEach((singleQuiz: any, quizIndex: number) => {
@@ -100,38 +97,95 @@ export default function Home() {
     return max;
   };
 
-  const compareAnswers = () => {
+  const compareAnswers = async () => {
     let totalScore = 0;
+    let timeFinish = timeString;
+    let maxPoint = maxNumberOfPoints();
+    const session = await getSession();
+    const userId = session?.user?.email;
   
     quiz.forEach((singleQuiz: any, quizIndex: number) => {
       singleQuiz.Pytania.forEach((pytanie: any, questionIndex: number) => {
         pytanie.Odpowiedzi.forEach((odpowiedz: any, answerIndex: number) => {
-          const userAnswer = userAnswers[quizIndex] && userAnswers[quizIndex][questionIndex];
-          const isUserAnswerCorrect = userAnswer && Array.isArray(userAnswer) && userAnswer.includes(odpowiedz.Odpowiedz) && odpowiedz.Poprawna;
-  
-          if (isUserAnswerCorrect) {
+          if (
+            userAnswers[quizIndex] &&
+            userAnswers[quizIndex][questionIndex] &&
+            userAnswers[quizIndex][questionIndex] === odpowiedz.Odpowiedz &&
+            odpowiedz.Poprawna
+          ) {
             totalScore++;
-          } /*else if (userAnswer && userAnswer.includes(odpowiedz.Odpowiedz) && !odpowiedz.Poprawna) {
-            totalScore--; // Odejmujemy punkt za błędną odpowiedź
-          }*/
+          }
         });
       });
     });
   
-    if (totalScore < 0) {
-      totalScore = 0; // Upewniamy się, że wynik nie spadnie poniżej zera
-    }
-  
     setScore(totalScore);
     setShowScoreboard(true);
     setQuizFinished(true);
-  };
-
+     //Maksymalny czas na test
+    let maxTime;
+    try {
+      const res = await fetch('/api/Quiz', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ quizId }),
+      });
   
+      if (res.ok) {
+        const data = await res.json();
+        const typ = data.data[0].Typ;
+        const difficulty = data.data[0].Trudność;
+        if(typ === 'Quiz bez limitu czasowego'){
+          maxTime = 0;
+        } else
+        if (difficulty === 'Łatwy') {
+          maxTime = 120 * data.data[0].Pytania.length;
+        } else if (difficulty === 'Średni') {
+          maxTime = 60 * data.data[0].Pytania.length;
+        } else if (difficulty === 'Trudny') {
+          maxTime = 30 * data.data[0].Pytania.length;
+        }
+    } else {
+      console.error('Error fetching quiz details');
+    }
+  } catch (error) {
+    console.error('Network error:', error);
+  }
 
-  const timeString = timeLeft
-    ? `${Math.floor(timeLeft / 60)} min ${timeLeft % 60} sek`
-    : '0 min 0 sek';
+    try {
+      const res = await fetch('/api/QuizResult', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          quizId,
+          userAnswers,
+          scoreUser: totalScore,
+          scoreMax: maxPoint,
+          timeFinish: timeFinish,
+          timeMax: maxTime,
+        }),
+      });
+  
+      if (res.ok) {
+        // Handle successful response from the server
+      } else {
+        console.error('Error saving quiz results to the server');
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+    }
+  };  
+  
+  const timeString = timeLeft !== null
+    ? `${Math.floor(timeLeft / 60)}:${timeLeft % 60} min`
+    : quizType === 'Quiz bez limitu czasowego'
+    ? 'Brak czasu'
+    : 'Czas minął';
 
   if (loading) {
     return (
@@ -141,7 +195,8 @@ export default function Home() {
     );
   } else if (!quiz) {
     return <p>Error: Couldn't fetch quiz data.</p>;
-  } else if (showScoreboard === true) {
+  } 
+  else if(showScoreboard===true){
     return (
       <div className='h-full w-full flex flex-col'>
         <div className='h-1/6 w-full flex justify-center'>
@@ -173,15 +228,14 @@ export default function Home() {
                         key={answerIndex}
                         className={`flex items-center ${
                           userAnswers[quizIndex] &&
-                          userAnswers[quizIndex][questionIndex] &&
-                          userAnswers[quizIndex][questionIndex].includes(odpowiedz.Odpowiedz)
+                          userAnswers[quizIndex][questionIndex] === odpowiedz.Odpowiedz
                             ? odpowiedz.Poprawna
                               ? 'bg-green text-white border-b-three'
-                              : 'bg-red text-white border-b-three'
-                            : ''}`}
-                        
-                        
+                              : ''
+                            : ''
+                        }`}
                       >
+                       
                         {odpowiedz.Odpowiedz}
                       </li>
                     ))}
@@ -201,10 +255,8 @@ export default function Home() {
           {quiz.map((singleQuiz: any, quizIndex: number) => (
             <div key={singleQuiz._id} className='h-full w-full flex flex-col p-4'>
               <div className='h-1/6 w-full border-three border-4'>
-                <h1 className='font-bold text-3xl flex justify-center'>{singleQuiz.Nazwa_Quizu}</h1>
-                {showTimer && (
-                  <p className='flex justify-end m-2'>Pozostało {timeString}</p>
-                )}
+              <h1 className='font-bold text-3xl flex justify-center'>{singleQuiz.Nazwa_Quizu}</h1>
+              <p className='flex justify-end m-2'>Pozostało: {timeString}</p>
               </div>
               <form onSubmit={(e) => { e.preventDefault(); compareAnswers(); }}>
                 {singleQuiz.Pytania.map((pytanie: any, questionIndex: number) => (
@@ -217,50 +269,34 @@ export default function Home() {
                         </div>
                         <div className='h-full w-1/6 flex justify-end'>
                           <input
-                            type="radio"
-                            name={`answer-${quizIndex}-${questionIndex}-${answerIndex}`}
-                            value={odpowiedz.Odpowiedz}
-                            onChange={(e) => {
-                              const isChecked = e.target.checked;
-                              const newAnswers:any[] = [...userAnswers];
-                              if (!newAnswers[quizIndex]) newAnswers[quizIndex] = [];
-                              if (!newAnswers[quizIndex][questionIndex]) newAnswers[quizIndex][questionIndex] = [''][0];
-                              
-                              if (isChecked) {
-                                const currentAnswers = newAnswers[quizIndex][questionIndex];
-                                if (Array.isArray(currentAnswers)) {
-                                  newAnswers[quizIndex][questionIndex] = currentAnswers.concat(odpowiedz.Odpowiedz);
-                                } else if (typeof currentAnswers === 'string') {
-                                  newAnswers[quizIndex][questionIndex] = [currentAnswers, odpowiedz.Odpowiedz];
-                                }
-                              } else if (!isChecked) {
-                                const currentAnswers = newAnswers[quizIndex][questionIndex];
-                                if (Array.isArray(currentAnswers)) {
-                                  newAnswers[quizIndex][questionIndex] = currentAnswers.filter((item: string) => item !== odpowiedz.Odpowiedz);
-                                } else if (typeof currentAnswers === 'string') {
-                                  newAnswers[quizIndex][questionIndex] = '';
-                                }
-                              }
-                              
-                              setUserAnswers(newAnswers);
-                            }}
+                              type={isMultipleChoiceQuiz ? "checkbox" : "radio"}
+                              name={`answer-${quizIndex}-${questionIndex}`}
+                              value={odpowiedz.Odpowiedz}
+                              onChange={() => {
+                                const newAnswers = [...userAnswers];
+                                if (!newAnswers[quizIndex]) newAnswers[quizIndex] = [];
+                                if (!newAnswers[quizIndex][questionIndex]) newAnswers[quizIndex][questionIndex] = '';
+                                newAnswers[quizIndex][questionIndex] = odpowiedz.Odpowiedz;
+                                setUserAnswers(newAnswers);
+                              }}
                           />
                         </div>
                       </div>
                     ))}
                   </div>
                 ))}
-                <button
-                  type="submit"
-                  className='h-1/6 w-full font-bold text-2xl border-l-4 border-l-three border-r-4 border-r-three border-b-4 border-b-three'
-                >
-                  <span className='flex justify-center'>Zakończ Quiz</span>
-                  
-                </button>
+              <button
+                type="submit"
+                className='h-1/6 w-full font-bold text-2xl border-l-4 border-l-three border-r-4 border-r-three border-b-4 border-b-three'
+              >
+                 <span className='flex justify-center'>Zakończ Quiz</span>
+                Pozostało: {timeString}
+              </button>
               </form>
             </div>
           ))}
         </div>
+        
       </div>
     );
   }

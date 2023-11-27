@@ -6,7 +6,7 @@ export default function Home() {
   const [formValues, setFormValues] = useState({
     NazwaQuiz: '',
     KategoriaQuiz: '',
-    TypQuiz: 'Flashcard',
+    TypQuiz: 'Quiz pojedynczego wyboru',
     TrudnoscQuiz: 'Łatwy',
     Questions: [] as {
       question: string;
@@ -164,7 +164,6 @@ export default function Home() {
                 <div className="h-full w-full border-l-4 border-solid border-three pl-2 flex flex-col">
                   <label>Typ Quizu:</label>
                   <select name="TypQuiz" value={formValues.TypQuiz} onChange={handleTypQuizChange} required>
-                    <option value="Flashcard">Flashcard</option>
                     <option value="Quiz pojedynczego wyboru">Quiz pojedynczego wyboru</option>
                     <option value="Quiz wielokrotnego wyboru">Quiz wielokrotnego wyboru</option>
                     <option value="Quiz bez limitu czasowego">Quiz bez limitu czasowego</option>

@@ -48,6 +48,7 @@ const Navbar = () => {
                 >
                   <p>Szukaj Quiz</p>
                 </Link>
+                <Link href="/AddQuiz" className="w-2/4 mr-6 2xl:text-l xl:text-l l:text-s md:text-s sm:text-s max-sm:text-xs text-four hover:text-secondary transition-all duration-300">                  <p>Dodaj quiz</p>                  </Link>
                 <Link
                   href="/about"
                   className="w-2/4 mr-6 2xl:text-l xl:text-l l:text-s md:text-s sm:text-s max-sm:text-xs text-four hover:text-secondary transition-all duration-300"

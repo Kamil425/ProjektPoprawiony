@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Link from 'next/link';
 import { getSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function SearchQuiz() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -176,6 +177,25 @@ export default function SearchQuiz() {
     return `${day}.${month}.${year}`;
   }
   
+  const router = useRouter();
+
+  const PassQuiz = async (e: any) => {
+    const quizId = e.currentTarget.getAttribute('data-value');
+    const quizType = e.currentTarget.getAttribute('data-type');
+
+    if (!quizId) {
+      console.error('Brak quizId');
+      return;
+    }
+
+    // Redirect to the appropriate quiz type page and pass the quizId as a query parameter
+    if (quizType === 'Quiz wielokrotnego wyboru') {
+      router.push(`/QuizMultiChoice?id=${quizId}`);
+    } else {
+      router.push(`/Quiz?id=${quizId}`);
+    }
+  };
+
   return (
     <div className="h-full w-full flex flex-col">
       <div className='w-full flex justify-center'>
@@ -227,9 +247,11 @@ export default function SearchQuiz() {
                   <p><b>Typ:</b> {quiz.Typ}</p>
                   <p><b>Data Utworzenia: </b>{formatDate(quiz.Utworzony)}</p>
                   <div className="flex space-x-4">
+                    <div data-value={quiz._id} data-type={quiz.Typ} onClick={PassQuiz}>
                     <Link href={`/Quiz?id=${quiz._id}`} passHref>
                     <button className='mt-2 bg-blue-500 text-black rounded-md p-2 block text-center border-2 border-three'>Start Quiz</button>
                     </Link>
+                    </div>
                   <button
                     className="mt-2 bg-blue-500 text-black rounded-md p-2 block text-center border-2 border-three"
                     onClick={(e) => initiateChallenge(e, quiz._id)}
